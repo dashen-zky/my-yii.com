@@ -1,6 +1,7 @@
 <?php
 namespace frontend\controllers;
 
+use frontend\models\HaHa;
 use Yii;
 use yii\base\InvalidParamException;
 use yii\web\BadRequestHttpException;
@@ -27,10 +28,10 @@ class SiteController extends Controller
         return [
             'access' => [
                 'class' => AccessControl::className(),
-                'only' => ['logout', 'signup'],
+                'only' => ['logout', 'signup','ha-ha'],
                 'rules' => [
                     [
-                        'actions' => ['signup','user-insert'],
+                        'actions' => ['signup','user-insert','ha-ha'],
                         'allow' => true,
                         'roles' => ['?'],
                     ],
@@ -522,7 +523,12 @@ class SiteController extends Controller
         $query->createCommand($query1.' VALUES '.$str)->execute();
         $query->createCommand($query2.' VALUES '.$second)->execute();
 
-//        print_r($str);echo '<hr>';print_r($second);die;
+    }
+
+    public function actionHaHa()
+    {
+        $haha = Yii::$container->get(HaHa::className());
+        $haha->getList();
     }
 
 

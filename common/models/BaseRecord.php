@@ -16,6 +16,8 @@ use yii\data\Pagination;
 
 class BaseRecord extends ActiveRecord
 {
+    const TableUser = 'user';
+
     public $enablePageSize = false;
     public $pageSize = 100;
 
@@ -53,7 +55,6 @@ class BaseRecord extends ActiveRecord
         } catch (\Exception $e) {
             throw $e;
         }
-
         return [
             'pagination' => $pagination,
             'list'=> $list,

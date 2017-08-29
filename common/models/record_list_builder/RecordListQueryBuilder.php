@@ -8,7 +8,8 @@
 
 namespace common\models\record_list_builder;
 
-
+use Yii;
+use yii\db\ActiveQuery;
 use yii\base\Component;
 use yii\base\Exception;
 use yii\db\ActiveRecordInterface;
@@ -46,8 +47,11 @@ class RecordListQueryBuilder extends Component implements RecordListQueryBuilder
    }
 
     public function buildQuery($record, $select) {
+        //　获取　规则
         $rules = $this->getRules($record);
+        // 拼接　select
         $selector = $this->buildSelector($select, $rules['rules']);
+        // 申明　query
         $query = Yii::createObject(ActiveQuery::className(), [get_class($record)])
             ->select($selector)->alias('t1');
         foreach ($rules['rules'] as $rule) {
