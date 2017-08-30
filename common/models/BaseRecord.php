@@ -11,8 +11,10 @@ namespace common\models;
 use Yii;
 use yii\base\Exception;
 use yii\db\ActiveRecord;
-use common\models\record_list_builder\RecordListQueryBuilder;
 use yii\data\Pagination;
+use common\models\record_operator\RecordOperator;
+use common\models\record_operator\RecordOperatorEvent;
+use common\models\record_list_builder\RecordListQueryBuilder;
 
 class BaseRecord extends ActiveRecord
 {
@@ -21,12 +23,21 @@ class BaseRecord extends ActiveRecord
     public $enablePageSize = false;
     public $pageSize = 100;
 
+    public $recordOperator;
+    public $recordListBuilder;
+
+    public function init()
+    {
+        $this->recordOperator = Yii::$container->get(RecordOperator::className());
+        $this->recordListBuilder = Yii::$container->get(RecordListQueryBuilder::className());
+
+    }
+
     public function recordList($selects, $condition=null,$fetchOne = false, $enablePage = true, $orderBy = null)
     {
         // 把　要查询的字段　和　查询的条件　拼接好
         try {
-            $recordListBuilder = Yii::$container->get(RecordListQueryBuilder::className()); // 列表查询构造器
-            $query = $recordListBuilder->recordListBuilder($this, $selects, $condition);
+            $query = $this->recordListBuilder->recordListBuilder($this, $selects, $condition);
         } catch (Exception $e) {
             throw $e;
         }
@@ -59,5 +70,26 @@ class BaseRecord extends ActiveRecord
             'pagination' => $pagination,
             'list'=> $list,
         ];
+    }
+
+    public function insertRecord($formData) {
+        if(empty($formData)) {
+            return true;
+        }
+        $this->recordOperator->on(RecordOperatorEvent::BeforeInsertRecord,[$this, 'beforeInsertRecord']);
+        $this->recordOperator->on(RecordOperatorEvent::AfterInsertRecord,[$this, 'afterInsertRecord']);
+        return $this->recordOperator->insertRecord($this, $formData);
+    }
+
+    public function beforeInsertRecord($event)
+    {
+        $this->trigger(RecordOperatorEvent::BeforeInsertRecord, $event);
+        $this->formDataPreHandler($event->formData);
+    }
+
+    public function formDataPreHandler($formData)
+    {
+
+
     }
 }

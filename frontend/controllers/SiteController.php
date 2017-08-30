@@ -527,9 +527,17 @@ class SiteController extends Controller
 
     public function actionHaHa()
     {
-        $haha = Yii::$container->get(HaHa::className());
-        $haha->getList();
+        $a = 1;
+        call_user_func(array($this,'add'),$a);
+        echo  $a;
     }
+
+    public function add(&$num)
+    {
+        $num++;
+    }
+
+
 
 
 }
